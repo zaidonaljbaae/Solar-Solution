@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم</title>
+
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Roboto:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheets -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</head>
+
+<body>
+<!-- ===== Header Section ===== -->
+<!-- Container-fluid wrapping the whole page with bg-dark and no padding -->
+<div class="container-fluid bg-dark p-0" dir="rtl">
+
+    <!-- Topbar Start -->
+    <div class="row gx-0 d-none d-lg-flex">
+        <!-- Left side (schedule + locations) -->
+        <div class="col-lg-6 px-8 text-end">
+            <div class="h-100 d-inline-flex align-items-center me-4 flex-wrap">
+                <small class="ms-1 fa fa-map-marker-alt my_nev_item me-2"></small>
+                <small class="ms-2">دمشق - جرمانا - شارع النسيم</small>
+                <small class="ms-1 fa fa-map-marker-alt my_nev_item me-2"></small>
+                <small class="ms-2">السويداء - شمالي دوار نجمة 200 متر</small>
+                <small class="ms-1 far fa-clock my_nev_item me-2"></small>              
+                <small class="ms-2">الأحد - الخميس : 9.00 صباحا - 4.00 مساء</small>
+            </div>
+        </div>
+
+        <!-- Right side (social + phones) -->
+        <div class="col-lg-6 px-5 text-start">
+            <div class="ms-3 h-100 d-inline-flex align-items-center me-4 flex-wrap">
+                <a href="tel:+963938466185" class="text-decoration-none me-2 my_nev_item">
+                <small><span dir="ltr">+963&nbsp;938466185</span></small>
+                </a>
+                <a href="tel:+963969230779" class="text-decoration-none me-2 my_nev_item">
+                <small><span dir="ltr">+963&nbsp;969230779</span></small>
+                </a>
+                <a href="tel:+963996553909" class="text-decoration-none me-2 my_nev_item">
+                <small><span dir="ltr">+963&nbsp;996553909</span></small>
+                </a>
+
+                <small class="fa fa-phone-alt my_nev_item me-2"></small>
+            </div>
+            <div class="h-100 d-inline-flex align-items-center mx-n2">
+                <a class="btn btn-square btn-link rounded-0 border-0 border-end my_nev_item" href="https://www.facebook.com/profile.php?id=61566883618867&mibextid=ZbWKwL">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a class="btn btn-square btn-link rounded-0 border-0 border-end my_nev_item" href="https://wa.me/+963938466185">
+                    <i class="fab fa-whatsapp"></i>
+                </a> <!-- WhatsApp -->
+            </div>
+        </div>
+    </div>
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top p-0 my_title" dir="rtl">
+        <a href="/login" class="navbar-brand d-flex align-items-center border-start px-4 px-lg-5">
+            <img src="{{ url_for('static', filename='assets/img/logo.PNG') }}" alt="Logo" class="me-2" style="height:40px;">
+            <h2 class="m-0 my_title">المهند</h2>
+        </a>
+        <button type="button" class="navbar-toggler ms-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+
+<!-- المحتوى الرئيسي -->
+<div class="container py-5">
+
+  <!-- المستطيل الأول: العنوان -->
+<div style="background-color: #f8f9fa;" class="text-white rounded p-4 mb-4 shadow-sm">
+    <h1 class="text-center">لوحة التحكم</h1>
+</div>
+
+<!-- المستطيل الثاني: أزرار -->
+<div class="bg-primary text-white rounded p-4 mb-2 shadow-sm btn-container">
+    <button id="btn-governorates">المحافظات</button>
+    <button id="btn-messages">الرسائل</button>
+    <button id="btn-services">الخدمات</button>
+</div>
+
+<!-- المستطيل الثالث: الجدول -->
+<div id="table-module-container"></div>
+
+<!-- المودال الخاص بالمناطق -->
+<div id="areasModal" style="display:none; position: fixed; top: 50%; left: 50%; 
+  transform: translate(-50%, -50%);
+  background: white; border: 1px solid #ccc; padding: 20px; 
+  z-index: 1000; width: 500px; max-height: 70vh; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 8px;">
+  <h3 id="modalTitle"></h3>
+  <table id="areasTable" border="1" style="width: 100%; text-align: center; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th>رقم</th>
+        <th>اسم المنطقة</th>
+        <th> </th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- سيتم تعبئة المحتوى هنا عبر JS -->
+    </tbody>
+  </table>
+  <div style="margin-top: 10px; display: flex; justify-content: space-between;">
+    <button onclick="addNewArea()" style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px;">➕ إضافة منطقة جديدة</button>
+    <button onclick="closeAreasModal()" style="padding: 8px 12px; background-color: #6c757d; color: white; border: none; border-radius: 4px;">✖️ إغلاق</button>
+  </div>
+</div>
+
+<!-- خلفية مظللة (overlay) -->
+<div id="modalOverlay" style="display:none; position: fixed; top: 0; left: 0; 
+  width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 900;">
+</div>
+
+<!-- Modal for Adding Item -->
+<div id="addModal" style="
+  display: none; 
+  position: fixed; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%); 
+  background-color: white; 
+  border: 1px solid #ccc; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+  padding: 20px; 
+  z-index: 1000;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 8px;
+">
+  <h4 id="addModalTitle"></h4>
+  <div id="addModalBody"></div>
+  <div style="margin-top: 15px; text-align: right;">
+    <button onclick="saveNewItem()" class="btn btn-success">💾 حفظ</button>
+    <button onclick="closeAddModal()" class="btn btn-secondary">❌ إلغاء</button>
+  </div>
+</div>
+
+<!-- مكان للإشعار -->
+<div id="addModalNotification" style="
+  display:none; 
+  position: fixed; 
+  bottom: 20px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  background: #28a745; 
+  color: white; 
+  padding: 10px 20px; 
+  border-radius: 5px;
+  z-index: 1001;
+"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const governoratesButton = document.getElementById('btn-governorates');
+
+  governoratesButton.addEventListener('click', async () => {
+
+      // استدعاء دالة المحافظات وانتظار النتيجة
+      const governoratesData = await loadGovernorateDropdown();
+      console.log(governoratesData);
+      if (governoratesData && governoratesData.data && governoratesData.data.length > 0) {
+          // إنشاء الجدول
+          createTableController('table-module-container', 'btn-governorates', {
+              columns: ['رقم', 'الاسم'],
+              data: governoratesData.data,
+              addButtonLabel: 'إضافة محافظة جديدة',
+              enableSearch: true,
+              enableAddButton: true,
+              enableEditButton: true,
+              enableDeleteButton: true,
+              isEditEnabled: (row, idx) => true,
+              isDeleteEnabled: () => true
+          });
+      } else {
+          console.warn('⚠️ لم يتم تحميل أي محافظات.');
+      }
+  });
+});
+</script>
+
+</div>
+</div>

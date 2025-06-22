@@ -11,3 +11,4 @@ SQLAlchemy
 nltk
 textblob
 langdetect
+flask_parameter_validation
