@@ -727,7 +727,7 @@ if (modal) {
 // APIS
 
 function fetchAllGovernorates() {
-    return fetch('http://127.0.0.1:5000/get-all-governorates', {
+    return fetch('https://solar-solution.onrender.com/get-all-governorates', {
         method: 'GET'
     })
     .then(response => {
