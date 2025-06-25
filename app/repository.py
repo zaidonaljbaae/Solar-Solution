@@ -58,9 +58,9 @@ class Repository:
             item = self.model.query.get(id)
             if not item:
                 return {"error": "Item not found"}, 404
-            item.active = False
+            item.Active = False
             db.session.commit()
-            return {"message": "Item deactivated", "item": item.id}, 200
+            return {"message": "has been deleted", "item": item.Name}
         except SQLAlchemyError as e:
             db.session.rollback()
             return {"error": str(e)}, 500

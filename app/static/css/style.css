@@ -767,3 +767,21 @@ body {
 .bg-primary{
     background-color: red;
 }
+
+#addModalSaveBtn {
+  background-color: #007BFF;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#addModalSaveBtn:hover {
+  background-color: #0056b3;
+  box-shadow: 0 6px 12px rgba(0, 86, 179, 0.5);
+}

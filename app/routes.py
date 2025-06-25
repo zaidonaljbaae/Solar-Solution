@@ -104,14 +104,15 @@ def add_governorate(name: str = Json()):
 @ValidateParameters()
 def get_governorates_by_region():
     try:
+        print("get-all-governorates")
         governorates = governorates_service.get_all_governorates()
         return jsonify([gov.serialize() for gov in governorates])
     except SQLAlchemyError as e:
         return jsonify({"error": str(e)}), 500
 
-@main.route('/delete-governorate/<int:governorate_id>', methods=['DELETE'])
+@main.route('/delete-governorate/<string:governorate_id>', methods=['DELETE'])
 @ValidateParameters()
-def delete_governorate(governorate_id: int):
+def delete_governorate(governorate_id: str = Route()):
     try:
         response = GovernorateService().delete_governorate(governorate_id)
         return jsonify(response), 200

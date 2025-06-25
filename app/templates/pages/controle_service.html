@@ -19,6 +19,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
@@ -144,8 +150,6 @@
   <h4 id="addModalTitle"></h4>
   <div id="addModalBody"></div>
   <div style="margin-top: 15px; text-align: right;">
-    <button onclick="saveNewItem()" class="btn btn-success">💾 حفظ</button>
-    <button onclick="closeAddModal()" class="btn btn-secondary">❌ إلغاء</button>
   </div>
 </div>
 
@@ -177,6 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
           // إنشاء الجدول
           createTableController('table-module-container', 'btn-governorates', {
               columns: ['رقم', 'الاسم'],
+              columnKeyMap: {
+              'رقم': 'num',
+              'الاسم': 'name'
+              },
               data: governoratesData.data,
               addButtonLabel: 'إضافة محافظة جديدة',
               enableSearch: true,

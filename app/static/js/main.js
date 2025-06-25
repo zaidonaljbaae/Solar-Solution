@@ -124,33 +124,33 @@ function sendWhatsAppMessage() {
 var governoratesList = []; // لتخزين المحافظات من API
 
 async function loadGovernorateDropdown() {  
-    console.log('🔄 تحميل المحافظات...');
+  console.log('🔄 تحميل المحافظات...');
 
-    try {
-        const data = await fetchAllGovernorates();
-        console.log('✅ المحافظات:', data);
+  try {
+    const data = await fetchAllGovernorates();
+    console.log('✅ المحافظات:', data);
 
-        // تجهيز مصفوفة بصيغة البيانات المطلوبة
-        const formattedData = data.map((gov, index) => ({
-            'id': gov.Id,
-            'رقم': (index + 1).toString(),
-            'الاسم': gov.Name
-        }));
+    // تجهيز مصفوفة بصيغة البيانات المطلوبة
+    const formattedData = data.map((gov, index) => ({
+      'id': gov.Id,
+      'num': (index + 1).toString(),
+      'name': gov.Name
+    }));
 
-        // طباعة النتيجة
-        console.log('✅ البيانات النهائية:', formattedData);
+    // طباعة النتيجة
+    console.log('✅ البيانات النهائية:', formattedData);
 
-        return {
-            data: formattedData
-        };
+    return {
+        data: formattedData
+    };
 
-    } catch (error) {
-        console.error('❌ خطأ في تحميل المحافظات:', error);
-        return {
-            data: [],
-            error: error.message
-        };
-    }
+  } catch (error) {
+      console.error('❌ خطأ في تحميل المحافظات:', error);
+      return {
+          data: [],
+          error: error.message
+      };
+  }
 }
 
 var regions = {
@@ -417,6 +417,62 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 //   return { render, filterData };
 // }
 
+// navigation
+
+function showAddModalNotification(message, isError = false) {
+  // Remove existing notification if any
+  const existingNotification = document.getElementById('addModalNotification');
+  if (existingNotification) {
+    existingNotification.remove();
+  }
+
+  // Create notification container
+  const notification = document.createElement('div');
+  notification.id = 'addModalNotification';
+  notification.textContent = message;
+
+  // Base styles
+  Object.assign(notification.style, {
+    position: 'fixed',
+    top: '20px',
+    right: '-400px',  // Start hidden outside viewport (for animation)
+    maxWidth: '300px',
+    padding: '15px 20px',
+    color: 'white',
+    fontSize: '1.1rem',
+    fontWeight: 'bold',
+    borderRadius: '8px',
+    boxShadow: '0 6px 12px rgba(0,0,0,0.2)',
+    zIndex: 10000,
+    transition: 'right 0.5s ease, opacity 0.5s ease',
+    opacity: '0.9'
+  });
+
+  // Color based on type
+  if (isError) {
+    notification.style.backgroundColor = '#dc3545'; // Bootstrap danger
+  } else {
+    notification.style.backgroundColor = '#28a745'; // Bootstrap success
+  }
+
+  // Append to body
+  document.body.appendChild(notification);
+
+  // Trigger slide-in animation
+  setTimeout(() => {
+    notification.style.right = '20px';
+  }, 50);
+
+  // Auto hide after 4 seconds
+  setTimeout(() => {
+    notification.style.right = '-400px';
+    notification.style.opacity = '0';
+    setTimeout(() => notification.remove(), 500); // Remove from DOM after animation
+  }, 4000);
+}
+
+
+// controller
 
 function createTableController(containerId, tableId, config) {
   let currentGovernorateForModal = null;
@@ -424,6 +480,7 @@ function createTableController(containerId, tableId, config) {
   if (!container) throw new Error('Container not found');
 
   const columns = config.columns || [];
+  const columnKeyMap = config.columnKeyMap || [];
   let data = config.data || [];
   const options = {
     enableSearch: config.enableSearch ?? true,
@@ -434,8 +491,8 @@ function createTableController(containerId, tableId, config) {
     isEditEnabled: config.isEditEnabled || (() => true),
     isDeleteEnabled: config.isDeleteEnabled || (() => true),
   };
-
   let filteredData = [...data];
+  console.log("filteredData", filteredData);
 
   function render() {
     container.innerHTML = '';
@@ -480,6 +537,7 @@ function createTableController(containerId, tableId, config) {
 
     if (options.enableEditButton || options.enableDeleteButton) {
       const thActions = document.createElement('th');
+      thActions.style.width = '20%';
       thActions.textContent = 'الإجراءات';
       trHead.appendChild(thActions);
     }
@@ -490,11 +548,13 @@ function createTableController(containerId, tableId, config) {
     const tbody = document.createElement('tbody');
 
     filteredData.forEach((row, idx) => {
+      console.log(`row ${row.id}`);
       const tr = document.createElement('tr');
 
       columns.forEach(col => {
         const td = document.createElement('td');
-        td.textContent = row[col] || '';
+        const key = columnKeyMap[col];  // نحصل على المفتاح الصحيح مثل 'name' أو 'num'
+        td.textContent = row[key] || '';
         td.style.padding = '10px';
         tr.appendChild(td);
       });
@@ -516,15 +576,17 @@ function createTableController(containerId, tableId, config) {
           const editBtn = document.createElement('button');
           editBtn.className = 'btn btn-sm btn-warning';
           editBtn.textContent = '✏️';
+          editBtn.style.marginLeft = '10px';
           editBtn.onclick = () => openEditDialog(idx);
           tdActions.appendChild(editBtn);
         }
 
-        if (options.enableDeleteButton && options.isDeleteEnabled(row, idx)) {
+        if (options.enableDeleteButton && options.isDeleteEnabled(row)) {
           const delBtn = document.createElement('button');
           delBtn.className = 'btn btn-sm btn-danger';
           delBtn.textContent = '🗑️';
-          delBtn.onclick = () => deleteRow(idx);
+          delBtn.style.marginRight = '10px';
+          delBtn.onclick = () => deleteRow(row.id, row.name);
           tdActions.appendChild(delBtn);
         }
 
@@ -560,13 +622,145 @@ function createTableController(containerId, tableId, config) {
     body.innerHTML = '';
 
     if (tableId === 'btn-governorates') {
+      // ✅ Modal Title
       title.textContent = 'إضافة محافظة جديدة';
+
+      // ✅ Input Wrapper
+      const inputWrapper = document.createElement('div');
+      inputWrapper.style.marginBottom = '20px';
+      inputWrapper.style.display = 'flex';
+      inputWrapper.style.flexDirection = 'column';
+      inputWrapper.style.alignItems = 'stretch';
+
+      // ✅ Governorate Name Input
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.placeholder = 'اسم المحافظة';
-      nameInput.className = 'form-control';
       nameInput.id = 'newGovernorateName';
-      body.appendChild(nameInput);
+      Object.assign(nameInput.style, {
+        padding: '15px 20px',
+        fontSize: '1.2rem',
+        borderRadius: '8px',
+        border: '2px solid #007BFF',
+        outline: 'none',
+        transition: 'border-color 0.3s ease'
+      });
+
+      nameInput.addEventListener('focus', () => {
+        nameInput.style.borderColor = '#0056b3';
+        nameInput.style.boxShadow = '0 0 8px rgba(0, 123, 255, 0.5)';
+      });
+      nameInput.addEventListener('blur', () => {
+        nameInput.style.borderColor = '#007BFF';
+        nameInput.style.boxShadow = 'none';
+      });
+
+      inputWrapper.appendChild(nameInput);
+
+      // ✅ Buttons Container
+      const buttonsContainer = document.createElement('div');
+        buttonsContainer.style.display = 'flex';
+        buttonsContainer.style.justifyContent = 'flex-end';
+        buttonsContainer.style.flexDirection = 'row-reverse';  // ✅ Right to left
+        buttonsContainer.style.gap = '10px';
+        buttonsContainer.style.marginTop = '15px';
+
+      // ✅ Save Button
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = '✅ حفظ المحافظة';
+      Object.assign(saveBtn.style, {
+        backgroundColor: '#28a745',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: '1.1rem',
+        padding: '12px 20px',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        boxShadow: '0 4px 8px rgba(40, 167, 69, 0.3)',
+        transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
+      });
+
+      saveBtn.addEventListener('mouseover', () => {
+        saveBtn.style.backgroundColor = '#218838';
+        saveBtn.style.boxShadow = '0 6px 12px rgba(33, 136, 56, 0.5)';
+      });
+      saveBtn.addEventListener('mouseout', () => {
+        saveBtn.style.backgroundColor = '#28a745';
+        saveBtn.style.boxShadow = '0 4px 8px rgba(40, 167, 69, 0.3)';
+      });
+
+      saveBtn.onclick = async () => {
+        const nameValue = nameInput.value.trim();
+        if (!nameValue) {
+          showAddModalNotification('❌ يرجى إدخال اسم المحافظة', true);
+          return;
+        }
+
+        try {
+          const result = await addGovernorate(nameValue);
+
+          showAddModalNotification('✅ تمت الإضافة بنجاح!');
+          closeAddModal();
+
+          // ✅ Fetch latest governorates from API
+          const freshGovernorates = await fetchAllGovernorates();
+
+          // ✅ Format data for your table
+          data = freshGovernorates.map((gov, index) => ({
+            'num': (index + 1).toString(),
+            'name': gov.Name,
+            'id': gov.Id,
+            'المناطق': []  // Optional: If you want to include regions later
+          }));
+
+          filteredData = [...data];
+
+          // ✅ Re-render the table
+          render();
+
+        } catch (error) {
+          console.error('❌ خطأ في حفظ المحافظة:', error);
+          showAddModalNotification('❌ حدث خطأ أثناء الحفظ', true);
+        }
+      };
+
+      // ✅ Cancel Button
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = '❌ إلغاء';
+      Object.assign(cancelBtn.style, {
+        backgroundColor: '#dc3545',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: '1rem',
+        padding: '10px 18px',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        boxShadow: '0 4px 8px rgba(220, 53, 69, 0.3)',
+        transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
+      });
+
+      cancelBtn.addEventListener('mouseover', () => {
+        cancelBtn.style.backgroundColor = '#c82333';
+        cancelBtn.style.boxShadow = '0 6px 12px rgba(200, 35, 51, 0.5)';
+      });
+      cancelBtn.addEventListener('mouseout', () => {
+        cancelBtn.style.backgroundColor = '#dc3545';
+        cancelBtn.style.boxShadow = '0 4px 8px rgba(220, 53, 69, 0.3)';
+      });
+
+      cancelBtn.onclick = () => {
+        closeAddModal();
+      };
+
+      // ✅ Append buttons to container
+      buttonsContainer.appendChild(cancelBtn);
+      buttonsContainer.appendChild(saveBtn);
+
+      // ✅ Final Append
+      inputWrapper.appendChild(buttonsContainer);
+      body.appendChild(inputWrapper);
     } else {
       title.textContent = 'إضافة عنصر جديد';
       columns.forEach(col => {
@@ -615,11 +809,35 @@ function createTableController(containerId, tableId, config) {
     });
   }
 
-  function deleteRow(idx) {
-    if (confirm('هل أنت متأكد من حذف هذا العنصر؟')) {
+  async function deleteRow(id, item_name) {
+    const idx = data.findIndex(item => item.id === id);
+    if (idx === -1) {
+      console.error('العنصر غير موجود في data بالمعرّف:', id);
+      return;
+    }
+      console.log(item_name);
+    const result = await Swal.fire({
+      title: ` هل أنت متأكد من حذف محافظة ${item_name} ؟`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، احذف',
+      cancelButtonText: 'إلغاء',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await deleteGovernorate(id);
+      console.log(response);
+
       data.splice(idx, 1);
       filteredData = [...data];
       render();
+
+      showAddModalNotification(`${item_name} تم حذف محافظة`);
+
+    } catch (error) {
+      showAddModalNotification('حدث خطأ أثناء حذف العنصر', 'فشل الحذف', true);
     }
   }
 
@@ -659,14 +877,6 @@ function createTableController(containerId, tableId, config) {
 
     modal.style.display = 'block';
     overlay.style.display = 'block';
-  }
-
-  function showAddModalNotification(message, isError = false) {
-    const notif = document.getElementById('addModalNotification');
-    notif.textContent = message;
-    notif.style.backgroundColor = isError ? '#dc3545' : '#28a745';
-    notif.style.display = 'block';
-    setTimeout(() => { notif.style.display = 'none'; }, 3000);
   }
 
   // ✅ Functions for Areas inside modal
@@ -727,8 +937,9 @@ if (modal) {
 // APIS
 
 function fetchAllGovernorates() {
-    return fetch('https://solar-solution.onrender.com/get-all-governorates', {
-        method: 'GET'
+    // return fetch('https://solar-solution.onrender.com/get-all-governorates', {
+    return fetch('http://127.0.0.1:5000/get-all-governorates', {
+      method: 'GET'
     })
     .then(response => {
         if (!response.ok) {
@@ -737,3 +948,203 @@ function fetchAllGovernorates() {
         return response.json();
     });
 }
+
+async function RefershGovernorates(){
+  try {
+    const response = await fetch('http://127.0.0.1:5000/get-all-governorates', {
+      method: 'GET',
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching client messages by region:', error);
+    throw error;
+  }
+}
+
+async function addClientMessage(messageData) {
+  // messageData example:
+  // { full_name, email, phone, message, region_id, house_number }
+  try {
+    const response = await fetch('http://127.0.0.1:5000/add-message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(messageData),
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding client message:', error);
+    throw error;
+  }
+}
+
+async function getClientMessagesByRegion(regionId) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/get-client-messages?region_id=${encodeURIComponent(regionId)}`, {
+      method: 'GET',
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching client messages by region:', error);
+    throw error;
+  }
+}
+
+
+async function getAllClientMessages() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/get-all-client-messages', {
+      method: 'GET',
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching all client messages:', error);
+    throw error;
+  }
+}
+
+
+async function deleteClientMessage(messageId) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/delete-client-message/${messageId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting client message:', error);
+    throw error;
+  }
+}
+
+
+async function updateClientMessage(messageId, messageData) {
+  // messageData example:
+  // { full_name, email, phone, message, region_id, house_number }
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/update-client-message/${messageId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(messageData),
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating client message:', error);
+    throw error;
+  }
+}
+
+
+async function addGovernorate(name) {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/add-governorate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding governorate:', error);
+    throw error;
+  }
+}
+
+async function deleteGovernorate(governorateId) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/delete-governorate/${governorateId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('خطأ من الـ API: ' + response.status);
+    }
+
+    const jsonData = await response.json();
+    return jsonData, response.status;
+
+  } catch (error) {
+    console.error('حدث خطأ أثناء الحذف:', error);
+    throw error;
+  }
+}
+
+async function updateGovernorate(governorateId, name) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/update-governorate/${governorateId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating governorate:', error);
+    throw error;
+  }
+}
+
+
+async function addRegion(name, governorateId) {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/add-region', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, governorate_id: governorateId }),
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding region:', error);
+    throw error;
+  }
+}
+
+
+async function getRegionsByGovernorate(governorateId) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/get-regions-by-governorate/${governorateId}`, {
+      method: 'GET',
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching regions by governorate:', error);
+    throw error;
+  }
+}
+
+
+async function deleteRegion(regionId) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/delete-region/${regionId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting region:', error);
+    throw error;
+  }
+}
+
+
+async function updateRegion(regionId, name, governorateId) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/update-region/${regionId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, governorate_id: governorateId }),
+    });
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating region:', error);
+    throw error;
+  }
+}
+

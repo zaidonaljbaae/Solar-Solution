@@ -78,7 +78,6 @@ class GovernorateService:
         except Exception as e:
             return {"error": str(e)}, 500
         
-    @staticmethod   
     def delete_governorate(self, governorate_id):
         try:
             return self.governorate_repo.delete_item(governorate_id)
