@@ -1,3 +1,4 @@
+const url_base = "https://solar-solution.onrender.com"
 (function ($) {
     "use strict";
 
@@ -938,7 +939,7 @@ if (modal) {
 
 function fetchAllGovernorates() {
     // return fetch('https://solar-solution.onrender.com/get-all-governorates', {
-    return fetch('http://127.0.0.1:5000/get-all-governorates', {
+    return fetch(`${url_base}/get-all-governorates`, {
       method: 'GET'
     })
     .then(response => {
@@ -951,7 +952,7 @@ function fetchAllGovernorates() {
 
 async function RefershGovernorates(){
   try {
-    const response = await fetch('http://127.0.0.1:5000/get-all-governorates', {
+    const response = await fetch(`${url_base}/get-all-governorates`, {
       method: 'GET',
     });
     if (!response.ok) throw new Error('API error: ' + response.status);
@@ -966,7 +967,7 @@ async function addClientMessage(messageData) {
   // messageData example:
   // { full_name, email, phone, message, region_id, house_number }
   try {
-    const response = await fetch('http://127.0.0.1:5000/add-message', {
+    const response = await fetch(`${url_base}/add-message`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(messageData),
@@ -981,7 +982,7 @@ async function addClientMessage(messageData) {
 
 async function getClientMessagesByRegion(regionId) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/get-client-messages?region_id=${encodeURIComponent(regionId)}`, {
+    const response = await fetch(`${url_base}/get-client-messages?region_id=${encodeURIComponent(regionId)}`, {
       method: 'GET',
     });
     if (!response.ok) throw new Error('API error: ' + response.status);
@@ -995,7 +996,7 @@ async function getClientMessagesByRegion(regionId) {
 
 async function getAllClientMessages() {
   try {
-    const response = await fetch('http://127.0.0.1:5000/get-all-client-messages', {
+    const response = await fetch(`${url_base}/get-all-client-messages`, {
       method: 'GET',
     });
     if (!response.ok) throw new Error('API error: ' + response.status);
@@ -1009,7 +1010,7 @@ async function getAllClientMessages() {
 
 async function deleteClientMessage(messageId) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/delete-client-message/${messageId}`, {
+    const response = await fetch(`${url_base}/delete-client-message/${messageId}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('API error: ' + response.status);
@@ -1025,7 +1026,7 @@ async function updateClientMessage(messageId, messageData) {
   // messageData example:
   // { full_name, email, phone, message, region_id, house_number }
   try {
-    const response = await fetch(`http://127.0.0.1:5000/update-client-message/${messageId}`, {
+    const response = await fetch(`${url_base}/update-client-message/${messageId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(messageData),
@@ -1041,7 +1042,7 @@ async function updateClientMessage(messageId, messageData) {
 
 async function addGovernorate(name) {
   try {
-    const response = await fetch('http://127.0.0.1:5000/add-governorate', {
+    const response = await fetch(`${url_base}/add-governorate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name }),
@@ -1056,7 +1057,7 @@ async function addGovernorate(name) {
 
 async function deleteGovernorate(governorateId) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/delete-governorate/${governorateId}`, {
+    const response = await fetch(`${url_base}/delete-governorate/${governorateId}`, {
       method: 'DELETE',
     });
 
@@ -1075,7 +1076,7 @@ async function deleteGovernorate(governorateId) {
 
 async function updateGovernorate(governorateId, name) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/update-governorate/${governorateId}`, {
+    const response = await fetch(`${url_base}/update-governorate/${governorateId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name }),
@@ -1091,7 +1092,7 @@ async function updateGovernorate(governorateId, name) {
 
 async function addRegion(name, governorateId) {
   try {
-    const response = await fetch('http://127.0.0.1:5000/add-region', {
+    const response = await fetch(`${url_base}/add-region`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, governorate_id: governorateId }),
@@ -1107,7 +1108,7 @@ async function addRegion(name, governorateId) {
 
 async function getRegionsByGovernorate(governorateId) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/get-regions-by-governorate/${governorateId}`, {
+    const response = await fetch(`${url_base}/get-regions-by-governorate/${governorateId}`, {
       method: 'GET',
     });
     if (!response.ok) throw new Error('API error: ' + response.status);
@@ -1121,7 +1122,7 @@ async function getRegionsByGovernorate(governorateId) {
 
 async function deleteRegion(regionId) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/delete-region/${regionId}`, {
+    const response = await fetch(`${url_base}/delete-region/${regionId}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('API error: ' + response.status);
@@ -1135,7 +1136,7 @@ async function deleteRegion(regionId) {
 
 async function updateRegion(regionId, name, governorateId) {
   try {
-    const response = await fetch(`http://127.0.0.1:5000/update-region/${regionId}`, {
+    const response = await fetch(`${url_base}/tupdate-region/${regionId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, governorate_id: governorateId }),
