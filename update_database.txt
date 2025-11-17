@@ -1,0 +1,5 @@
+update models
+then ---> 
+terminal: flask db init
+terminal: flask db migrate -m "initial tables"
+terminal: flask db upgrade

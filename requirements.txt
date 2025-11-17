@@ -12,3 +12,5 @@ nltk
 textblob
 langdetect
 flask_parameter_validation
+PyJWT==2.8.0
+psycopg2
