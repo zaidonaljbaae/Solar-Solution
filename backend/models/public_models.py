@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from werkzeug.security import check_password_hash
-from backend.app import db
+from backend.extensions import db
 
 
 # ==============================

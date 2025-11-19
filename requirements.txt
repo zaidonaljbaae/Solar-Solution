@@ -14,3 +14,6 @@ langdetect
 flask_parameter_validation
 PyJWT==2.8.0
 psycopg2
+flask-jwt-extended
+bcrypt
+python-dotenv

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from backend.repositories.public_repository import PublicRepository
 from backend.models.public_models import Region
+from flask_jwt_extended import jwt_required
 
 regions_bp = Blueprint("regions", __name__, url_prefix="/api/regions")
 
@@ -8,6 +9,7 @@ repo = PublicRepository(Region)
 
 
 @regions_bp.post("/")
+@jwt_required()
 def create_region():
     data = request.json or {}
     try:
@@ -33,6 +35,7 @@ def get_region(obj_id):
 
 
 @regions_bp.put("/<string:obj_id>")
+@jwt_required()
 def update_region(obj_id):
     data = request.json or {}
     obj = repo.update(obj_id, **data)
@@ -42,6 +45,7 @@ def update_region(obj_id):
 
 
 @regions_bp.delete("/<string:obj_id>")
+@jwt_required()
 def delete_region(obj_id):
     deleted = repo.delete(obj_id, soft=True)
     if not deleted:

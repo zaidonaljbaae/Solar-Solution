@@ -3,6 +3,7 @@ from backend.repositories.public_repository import PublicRepository
 from backend.models.public_models import Governorate
 
 governorate_bp = Blueprint("governorate", __name__, url_prefix="/api/governorates")
+from flask_jwt_extended import jwt_required
 
 repo = PublicRepository(Governorate)
 
@@ -11,6 +12,7 @@ repo = PublicRepository(Governorate)
 # CREATE
 # ================================
 @governorate_bp.post("/")
+@jwt_required()
 def create_governorate():
     data = request.json or {}
     try:
@@ -48,6 +50,7 @@ def get_governorate(obj_id):
 # UPDATE
 # ================================
 @governorate_bp.put("/<string:obj_id>")
+@jwt_required()
 def update_governorate(obj_id):
     data = request.json or {}
     obj = repo.update(obj_id, **data)
@@ -61,6 +64,7 @@ def update_governorate(obj_id):
 # DELETE
 # ================================
 @governorate_bp.delete("/<string:obj_id>")
+@jwt_required()
 def delete_governorate(obj_id):
     deleted = repo.delete(obj_id, soft=True)
     if not deleted:

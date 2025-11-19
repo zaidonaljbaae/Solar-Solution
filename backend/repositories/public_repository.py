@@ -1,4 +1,4 @@
-from backend.app import db
+from backend.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Type, List, Optional, Dict
 from sqlalchemy import or_, and_
